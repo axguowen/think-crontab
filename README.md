@@ -3,9 +3,13 @@
 一个简单的ThinkPHP定时任务扩展，定时功能基于Workerman4.1开发
 
 支持多任务执行
+
 支持定时执行闭包函数
+
 支持定时执行类的动态方法
+
 支持定时执行类的静态方法
+
 执行器方法均支持依赖注入
 
 ## 安装
@@ -39,15 +43,16 @@ return [
             'handler' => \app\crontab\Handler::class . '::staticMethod',
         ],
         [
-        	'name' => '执行类的动态方法',
-        	'interval' => 6,
-        	'handler' => [\app\crontab\Handler::class, 'publicMethod'],
+            'name' => '执行类的动态方法',
+            'interval' => 6,
+            // 这里实例化Handler类后执行publicMethod方法
+            'handler' => [\app\crontab\Handler::class, 'publicMethod'],
         ],
         [
-        	'name' => '不指定动态方法则默认执行类的handler方法',
-        	'interval' => 8,
-            // 此时\app\crontab\Handler类中必须要有handler方法
-        	'handler' => \app\crontab\Handler::class,
+            'name' => '不指定方法则默认执行类的handler方法',
+            'interval' => 8,
+            // 这里实例化Handler类后执行handler方法，请确保Handler类中存在handler方法
+            'handler' => \app\crontab\Handler::class,
         ],
     ],
     // 是否以守护进程启动
