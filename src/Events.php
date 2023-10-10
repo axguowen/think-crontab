@@ -71,7 +71,7 @@ class Events
             $handler = $task['handler'];
             // 如果是类名则指定方法
             if (is_string($handler) && false === strpos($handler, '::')) {
-                $handler = [$handler, 'handler'];
+                $handler = [$handler, 'handle'];
             }
             // 加入到定时器
             Timer::add($task['interval'], function ($callable, $app){

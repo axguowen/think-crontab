@@ -44,9 +44,9 @@ return [
         	'handler' => [\app\crontab\Handler::class, 'publicMethod'],
         ],
         [
-        	'name' => '不指定动态方法则默认执行类的handler方法',
+        	'name' => '不指定动态方法则默认执行类的handle方法',
         	'interval' => 8,
-            // 此时\app\crontab\Handler类中必须要有handler方法
+            // 此时\app\crontab\Handler类中必须要有handle方法
         	'handler' => \app\crontab\Handler::class,
         ],
     ],
