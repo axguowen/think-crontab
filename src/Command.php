@@ -9,16 +9,15 @@
 // | Author: axguowen <axguowen@qq.com>
 // +----------------------------------------------------------------------
 
-namespace think\crontab\command;
+namespace think\crontab;
 
-use think\console\Command;
+use think\console\Command as Base;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
-use think\crontab\Crontab;
 
-class Start extends Command
+class Command extends Base
 {
     /**
      * 配置
@@ -28,7 +27,7 @@ class Start extends Command
     protected function configure()
     {
         // 指令配置
-        $this->setName('worker')
+        $this->setName('crontab')
             ->addArgument('action', Argument::OPTIONAL, 'start|stop|restart|reload|status', 'start')
             ->addOption('daemon', 'd', Option::VALUE_NONE, 'Run the crontab in daemon mode.')
             ->setDescription('A Simple Crontab Extend For ThinkPHP');

@@ -22,7 +22,7 @@ class Service extends \think\Service
     {
         // 设置命令
         $this->commands([
-            'crontab' => command\Start::class,
+            'crontab' => Command::class,
         ]);
     }
 }
