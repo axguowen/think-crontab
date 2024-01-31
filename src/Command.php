@@ -42,6 +42,22 @@ class Command extends Base
      */
     protected function execute(Input $input, Output $output)
     {
+        // 获取命令行参数
+        global $argv;
+        // 如果是入口文件是think
+        if (isset($argv[0]) && $argv[0] == 'think') {
+            // 移除think
+            array_shift($argv);
+            // 追加当前目录的start.php
+            array_unshift($argv, __DIR__ . '/start.php');
+            // 构造新命令
+            $command = sprintf('%s %s', PHP_BINARY, implode(' ', $argv));
+            // 执行命令
+            passthru($command);
+            // 返回
+            return false;
+        }
+        
         // 获取参数
         $action = $input->getArgument('action');
         // 如果是linux系统
@@ -50,11 +66,8 @@ class Command extends Base
                 $output->writeln('<error>Invalid argument action:' . $action . ', Expected start|stop|restart|reload|status.</error>');
                 return false;
             }
-
-            global $argv;
+            // 移除命令行参数中的think
             array_shift($argv);
-            array_shift($argv);
-            array_unshift($argv, 'think', $action);
         }
         // windows只支持start方法
         elseif ('start' != $action) {
