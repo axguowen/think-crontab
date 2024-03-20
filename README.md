@@ -25,8 +25,8 @@ composer require axguowen/think-crontab
 
 ~~~php
 return [
-	// 计划任务Worker实例名称
-	'name' => 'think-crontab',
+    // 计划任务Worker实例名称
+    'name' => 'think-crontab',
     // 是否以守护进程启动
     'daemonize' => false,
     // 内容输出文件路径
@@ -39,7 +39,7 @@ return [
     'task_list' => [
         [
             // 类型为普通任务
-			'type' => 'task',
+            'type' => 'task',
             // 任务名称
             'name' => '执行闭包函数',
             // 间隔时间, 单位: 秒
@@ -51,7 +51,7 @@ return [
         ],
         [
             // 类型为普通任务
-			'type' => 'task',
+            'type' => 'task',
             // 任务名称
             'name' => '执行类的静态方法',
             // 间隔时间, 单位: 秒
@@ -61,11 +61,11 @@ return [
         ],
         [
             // 类型为分组任务
-			'type' => 'group',
-			// 分组名称
-			'name' => '动态方法测试分组',
+            'type' => 'group',
+            // 分组名称
+            'name' => '动态方法测试分组',
             // 分组任务列表
-			'tasks' => [
+            'tasks' => [
                 [
                     // 任务名称
                     'name' => '执行类的动态方法',
