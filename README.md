@@ -25,36 +25,8 @@ composer require axguowen/think-crontab
 
 ~~~php
 return [
-    // 任务列表
-    'tasks' => [
-        [
-            // 任务名称
-            'name' => '执行闭包函数',
-            // 间隔时间, 单位: 秒
-            'interval' => 2,
-            // 执行器，支持闭包、类的动态方法、类的静态方法，支持参数依赖注入
-            'handler' => function(\think\App $app){
-                var_dump($app->version() . 'aaabbb');
-            }
-        ],
-        [
-            'name' => '执行类的静态方法',
-            'interval' => 4,
-            'handler' => \app\crontab\Handler::class . '::staticMethod',
-        ],
-        [
-            'name' => '执行类的动态方法',
-            'interval' => 6,
-            // 这里实例化Handler类后执行publicMethod方法
-            'handler' => [\app\crontab\Handler::class, 'publicMethod'],
-        ],
-        [
-            'name' => '不指定动态方法则默认执行类的handle方法',
-            'interval' => 8,
-            // 此时\app\crontab\Handler类中必须要有handle方法
-            'handler' => \app\crontab\Handler::class,
-        ],
-    ],
+	// 计划任务Worker实例名称
+	'name' => 'think-crontab',
     // 是否以守护进程启动
     'daemonize' => false,
     // 内容输出文件路径
@@ -63,13 +35,55 @@ return [
     'pid_file' => '',
     // 日志文件路径
     'log_file' => '',
-    // Worker配置
-    'worker' => [
-        // 进程名称
-        'name' => 'think-crontab',
-        // 进程数量
-        'count' => 5,
-        // 支持workerman的其它配置参数
+    // 任务列表
+    'task_list' => [
+        [
+            // 类型为普通任务
+			'type' => 'task',
+            // 任务名称
+            'name' => '执行闭包函数',
+            // 间隔时间, 单位: 秒
+            'interval' => 2,
+            // 执行器，支持闭包、类的动态方法、类的静态方法，支持参数依赖注入
+            'handler' => function(\think\App $app){
+                echo 'ThinkPHP v' . $app->version() . PHP_EOL;
+            }
+        ],
+        [
+            // 类型为普通任务
+			'type' => 'task',
+            // 任务名称
+            'name' => '执行类的静态方法',
+            // 间隔时间, 单位: 秒
+            'interval' => 4,
+            // 执行器，支持闭包、类的动态方法、类的静态方法，支持参数依赖注入
+            'handler' => \app\crontab\Handler::class . '::staticMethod',
+        ],
+        [
+            // 类型为分组任务
+			'type' => 'group',
+			// 分组名称
+			'name' => '动态方法测试分组',
+            // 分组任务列表
+			'tasks' => [
+                [
+                    // 任务名称
+                    'name' => '执行类的动态方法',
+                    // 间隔时间, 单位: 秒
+                    'interval' => 6,
+                    // 这里实例化Handler类后执行publicMethod方法
+                    'handler' => [\app\crontab\Handler::class, 'publicMethod'],
+                ],
+                [
+                    // 任务名称
+                    'name' => '不指定动态方法则默认执行类的handle方法',
+                    // 间隔时间, 单位: 秒
+                    'interval' => 8,
+                    // 此时\app\crontab\Handler类中必须要有handle方法
+                    'handler' => \app\crontab\Handler::class,
+                ],
+            ],
+        ],
     ],
 ];
 ~~~

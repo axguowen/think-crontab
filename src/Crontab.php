@@ -24,8 +24,8 @@ class Crontab
      * @var array
      */
 	protected $options = [
-		// 任务列表
-        'tasks' => [],
+        // 计划任务Worker实例名称
+        'name' => 'think-crontab',
         // 是否以守护进程启动
         'daemonize' => false,
         // 内容输出文件路径
@@ -34,14 +34,8 @@ class Crontab
         'pid_file' => '',
         // 日志文件路径
         'log_file' => '',
-        // Worker配置
-        'worker' => [
-            // 进程名称
-            'name' => 'think-crontab',
-            // 进程数量
-            'count' => 1,
-            // 支持workerman的其它配置参数
-        ],
+		// 任务列表
+        'task_list' => [],
 	];
 
     /**
@@ -99,26 +93,14 @@ class Crontab
      */
 	protected function init()
 	{
-		// 可配置的worker属性
-		$workerPropertyMap = [
-			'name',
-			'count',
-			'user',
-			'group',
-			'reloadable',
-			'reusePort',
-			'transport',
-			'protocol',
-		];
-		foreach ($workerPropertyMap as $property) {
-			if (isset($this->options['worker'][$property])) {
-				$this->worker->$property = $this->options['worker'][$property];
-			}
-		}
-		// 如果名称为空
-		if(empty($this->worker->name) || 'none' == $this->worker->name){
-			$this->worker->name = 'crontab';
-		}
+        // 获取实例名称
+        $this->worker->name = $this->options['name'];
+        if(empty($this->worker->name)){
+            $this->worker->name = 'think-crontab';
+        }
+
+        // 设置进程数
+        $this->worker->count = count($this->options['task_list']);
 
 		// 内容输出文件路径
 		if(!empty($this->options['stdout_file'])){

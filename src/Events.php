@@ -28,53 +28,36 @@ class Events
      */
     public static function onWorkerStart(App $app, Worker $worker, Input $input, Output $output)
     {
-        // 获取配置中的任务
-        $tasks = $app->config->get('crontab.tasks');
-        // 如果任务为空
-        if(empty($tasks)){
-            $output->writeln('<error>The task list is empty</error>');
-            return;
+        // 获取配置中的任务列表
+        $task_list = $app->config->get('crontab.task_list');
+        // 如果任务列表为空
+        if(empty($task_list)){
+            // 输出错误并返回
+            return $output->writeln('<error>The task list is empty</error>');
         }
-        // 默认参数
-        $config = [
-            // 任务标识
-            'name' => '',
-            // 任务间隔时间
-            'interval' => 60,
-            // 执行器
-            'handler' => '',
-        ];
-        // 任务索引
-        $index = 0;
-        // 启动失败的任务列表
-        $faileds = [];
-        // 等待时间
-        sleep($worker->id);
-        // 遍历任务列表
-        foreach($tasks as $task){
-            $index++;
-            // 任务名称
-            $name = 'The task [' . $task['name'] . ']';
-            if(empty($task['name'])){
-                $name = 'The task index [' . $index . ']';
+
+        // 获取当前任务
+        $task = $task_list[$worker->id];
+        // 如果是普通任务
+        if(!isset($task['type']) || $task['type'] != 'group'){
+            // 合并配置
+            $task = array_merge([
+                'name' => 'unnamed',
+                'interval' => 60,
+            ], $task);
+            // 如果执行器为空
+            if(!isset($task['handler']) || empty($task['handler'])){
+                // 输出错误并返回
+                return $output->writeln('<error>The task: ' . $task['name'] . ' in process id: ' . $worker->id . ' is start failed, reason: task handler is empty</error>');
             }
-            // 如果未指定
-            $task = array_merge($config, $task);
-            if(empty($task['handler'])){
-                // 任务名称
-                $faileds[] = [
-                    'name' => $name,
-                    'reason' => 'handler is empty',
-                ];
-                continue;
-            }
+            // 获取执行器
             $handler = $task['handler'];
             // 如果是类名则指定方法
             if (is_string($handler) && false === strpos($handler, '::')) {
                 $handler = [$handler, 'handle'];
             }
-            // 加入到定时器
-            Timer::add($task['interval'], function ($callable, $app){
+            // 加入到定时器并返回
+            return Timer::add($task['interval'], function ($callable, $app){
                 // 如果是闭包
                 if ($callable instanceof \Closure) {
                     // 执行闭包
@@ -84,12 +67,44 @@ class Events
                 return $app->invokeMethod($callable);
             }, [$handler, $app]);
         }
-        
-        // 如果失败的不为空
-        if(!empty($faileds)){
-            foreach($faileds as $failed){
-                $output->writeln('<error>' . $failed['name'] . ' is start failed, reason: ' . $failed['reason'] . '</error>');
+
+        // 如果是任务组
+        // 合并配置
+        $group = array_merge(['name' => 'unnamed'], $task);
+        // 如果是任务组但未设置任务列表或者为空
+        if(!isset($group['tasks']) || !is_array($group['tasks']) || empty($group['tasks'])){
+            // 输出错误并返回
+            return $output->writeln('<error>The group: ' . $group['name'] . ' in process id: ' . $worker->id . ' is start failed, reason: group task is empty</error>');
+        }
+        // 如果是任务组则遍历任务列表
+        foreach($group['tasks'] as $task){
+            // 合并配置
+            $task = array_merge([
+                'name' => 'unnamed',
+                'interval' => 60,
+            ], $task);
+
+            // 如果执行器为空
+            if(!isset($task['handler']) || empty($task['handler'])){
+                // 输出错误并返回
+                $output->writeln('<error>The task: ' . $task['name'] . ' in process id: ' . $worker->id . ' is start failed, reason: task handler is empty</error>');
+                continue;
             }
+            $handler = $task['handler'];
+            // 如果是类名则指定方法
+            if (is_string($handler) && false === strpos($handler, '::')) {
+                $handler = [$handler, 'handle'];
+            }
+            // 加入到定时器并返回
+            Timer::add($task['interval'], function ($callable, $app){
+                // 如果是闭包
+                if ($callable instanceof \Closure) {
+                    // 执行闭包
+                    return $app->invokeFunction($callable);
+                }
+                // 执行类的方法
+                return $app->invokeMethod($callable);
+            }, [$handler, $app]);
         }
     }
 }
