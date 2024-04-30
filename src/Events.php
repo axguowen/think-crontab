@@ -22,8 +22,10 @@ class Events
     /**
      * onWorkerStart 事件回调
      * @access public
+	 * @param App $app 应用实例
      * @param Worker $worker
-     * @param Worker $worker
+     * @param Input $input 输入
+     * @param Output $output 输出
      * @return void
      */
     public static function onWorkerStart(App $app, Worker $worker, Input $input, Output $output)
