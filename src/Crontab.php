@@ -71,6 +71,9 @@ class Crontab
     /**
      * 架构函数
      * @access public
+	 * @param App $app 应用实例
+     * @param Input $input 输入
+     * @param Output $output 输出
      * @return void
      */
     public function __construct(App $app, Input $input, Output $output)
@@ -99,6 +102,9 @@ class Crontab
             $this->worker->name = 'think-crontab';
         }
 
+        // 设置runtime路径
+        $this->app->setRuntimePath($this->app->getRuntimePath() . $this->worker->name . DIRECTORY_SEPARATOR);
+
         // 设置进程数
         $this->worker->count = count($this->options['task_list']);
 
@@ -107,7 +113,7 @@ class Crontab
 			// 目录不存在则自动创建
 			$stdout_dir = dirname($this->options['stdout_file']);
 			if (!is_dir($stdout_dir)){
-				mkdir($stdout_dir);
+				mkdir($stdout_dir, 0755, true);
 			}
 			// 指定stdout文件路径
 			Worker::$stdoutFile = $this->options['stdout_file'];
@@ -120,7 +126,7 @@ class Crontab
 		// 目录不存在则自动创建
 		$pid_dir = dirname($this->options['pid_file']);
 		if (!is_dir($pid_dir)){
-			mkdir($pid_dir);
+			mkdir($pid_dir, 0755, true);
 		}
 		// 指定pid文件路径
 		Worker::$pidFile = $this->options['pid_file'];
@@ -132,7 +138,7 @@ class Crontab
 		// 目录不存在则自动创建
 		$log_dir = dirname($this->options['log_file']);
 		if (!is_dir($log_dir)){
-			mkdir($log_dir);
+			mkdir($log_dir, 0755, true);
 		}
 		// 指定日志文件路径
 		Worker::$logFile = $this->options['log_file'];
