@@ -176,7 +176,7 @@ class Crontab
     public function onWorkerStart(Worker $worker)
     {
         // 清除opcache缓存
-        if (function_exists('opcache_reset')) {
+        if (is_callable('opcache_reset')) {
             opcache_reset();
         }
         // 启动
