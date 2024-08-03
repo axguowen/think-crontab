@@ -13,7 +13,7 @@ namespace think;
 
 // 命令行入口文件
 // 加载基础文件
-require __DIR__ . '/../../../autoload.php';
+require dirname(__DIR__, 3) . '/autoload.php';
 
 // 如果命令不是 crontab 则退出
 if ($argc < 2 || $argv[1] != 'crontab') {

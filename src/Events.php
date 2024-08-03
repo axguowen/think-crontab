@@ -11,8 +11,7 @@
 
 namespace think\crontab;
 
-use think\App;
-use think\console\Input;
+use think\facade\App;
 use think\console\Output;
 use Workerman\Worker;
 use Workerman\Lib\Timer;
@@ -22,24 +21,21 @@ class Events
     /**
      * onWorkerStart 事件回调
      * @access public
-	 * @param App $app 应用实例
      * @param Worker $worker
-     * @param Input $input 输入
      * @param Output $output 输出
+     * @param array $tasks 任务
      * @return void
      */
-    public static function onWorkerStart(App $app, Worker $worker, Input $input, Output $output)
+    public static function onWorkerStart(Worker $worker, Output $output, $tasks = [])
     {
-        // 获取配置中的任务列表
-        $task_list = $app->config->get('crontab.task_list');
         // 如果任务列表为空
-        if(empty($task_list)){
+        if(empty($tasks)){
             // 输出错误并返回
             return $output->writeln('<error>The task list is empty</error>');
         }
 
         // 获取当前任务
-        $task = $task_list[$worker->id];
+        $task = $tasks[$worker->id];
         // 如果是普通任务
         if(!isset($task['type']) || $task['type'] != 'group'){
             // 合并配置
@@ -59,15 +55,15 @@ class Events
                 $handler = [$handler, 'handle'];
             }
             // 加入到定时器并返回
-            return Timer::add($task['interval'], function ($callable, $app){
+            return Timer::add($task['interval'], function ($callable){
                 // 如果是闭包
                 if ($callable instanceof \Closure) {
                     // 执行闭包
-                    return $app->invokeFunction($callable);
+                    return App::invokeFunction($callable);
                 }
                 // 执行类的方法
-                return $app->invokeMethod($callable);
-            }, [$handler, $app]);
+                return App::invokeMethod($callable);
+            }, [$handler]);
         }
 
         // 如果是任务组
@@ -98,15 +94,15 @@ class Events
                 $handler = [$handler, 'handle'];
             }
             // 加入到定时器并返回
-            Timer::add($task['interval'], function ($callable, $app){
+            Timer::add($task['interval'], function ($callable){
                 // 如果是闭包
                 if ($callable instanceof \Closure) {
                     // 执行闭包
-                    return $app->invokeFunction($callable);
+                    return App::invokeFunction($callable);
                 }
                 // 执行类的方法
-                return $app->invokeMethod($callable);
-            }, [$handler, $app]);
+                return App::invokeMethod($callable);
+            }, [$handler]);
         }
     }
 }

@@ -80,8 +80,15 @@ class Command extends Base
             $output->writeln('Starting crontab service...');
         }
 
+        // 读取配置
+        $options = $this->app->config->get('crontab', []);
+        // 如果是守护进程模式
+        if ($input->hasOption('daemon')) {
+            $options['daemonize'] = true;
+        }
+
         // 实例化
-        $crontab = $this->app->make(Crontab::class, [$input, $output]);
+        $crontab = $this->app->make(Crontab::class, [$output, $options]);
 
         if (DIRECTORY_SEPARATOR == '\\') {
             $output->writeln('You can exit with <info>`CTRL-C`</info>');
